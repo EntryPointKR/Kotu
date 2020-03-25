@@ -8,7 +8,7 @@ group = "kr.entree"
 version = "1.0-SNAPSHOT"
 
 application {
-    mainClassName = "kr.entree.kotu.MainViewKt"
+    mainClassName = "kr.entree.kotu.KotuApp"
 }
 
 repositories {
