@@ -10,7 +10,8 @@ import kr.entree.kotu.data.GameType
 import kr.entree.kotu.data.Room
 import kr.entree.kotu.data.User
 import kr.entree.kotu.mainJson
-import kr.entree.kotu.packet.*
+import kr.entree.kotu.packet.Empty
+import kr.entree.kotu.packet.Unknown
 import kr.entree.kotu.packet.input.Chat
 import kr.entree.kotu.packet.input.ChatType
 import kr.entree.kotu.packet.input.Disconnect
@@ -55,8 +56,8 @@ fun decodeRoom(json: JsonObject): Room {
     }.getOrElse {
         GameType.UNKNOWN
     }
-    val public = json["password"]?.primitive?.boolean ?: true
-    return Room(id, name, type, public)
+    val private = json["password"]?.primitive?.boolean ?: false
+    return Room(id, name, type, !private)
 }
 
 fun Frame.Binary.decodeBinaryChat() = ByteBuffer.wrap(readBytes()).run {

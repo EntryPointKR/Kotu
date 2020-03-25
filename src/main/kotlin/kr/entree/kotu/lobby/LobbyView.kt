@@ -28,7 +28,7 @@ class LobbyView : View() {
             readonlyColumn("종류", Room::typeName)
             readonlyColumn("공개", Room::public).cellFormat {
                 tableRow.toggleClass(LobbyStyle.publicRoom, it)
-                tableRow.toggleClass(LobbyStyle.privateRoom, it)
+                tableRow.toggleClass(LobbyStyle.privateRoom, !it)
                 text = if (it) "공개" else "비공개"
             }
             onDoubleClick {
