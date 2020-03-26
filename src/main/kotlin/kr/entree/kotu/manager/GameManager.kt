@@ -1,8 +1,8 @@
 package kr.entree.kotu.manager
 
+import kr.entree.kotu.packet.input.Welcome
 import kr.entree.kotu.ui.data.Room
 import kr.entree.kotu.ui.data.User
-import kr.entree.kotu.packet.input.Welcome
 import tornadofx.asObservable
 
 class GameManager {

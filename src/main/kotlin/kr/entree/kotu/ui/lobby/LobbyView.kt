@@ -36,6 +36,10 @@ class LobbyView : View("Kotu") {
                 tableRow.toggleClass(LobbyStyle.ingameRoom, it)
                 text = if (it) "게임중" else "대기중"
             }
+            column("플레이어", Room::userIds).cellFormat {
+                val room = items[index]
+                text = "${it.size}/${room.maxPlayers}"
+            }
             onDoubleClick {
                 val room = selectedItem ?: return@onDoubleClick
                 controller.join(room)

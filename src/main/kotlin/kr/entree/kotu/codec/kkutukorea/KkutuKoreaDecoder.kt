@@ -4,6 +4,7 @@ import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.readBytes
 import io.ktor.http.cio.websocket.readText
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kr.entree.kotu.codec.getStringWhileZero
 import kr.entree.kotu.codec.getUnsignedByte
 import kr.entree.kotu.mainJson
@@ -54,9 +55,15 @@ fun decodeRoom(json: JsonObject): Room {
     }.getOrElse {
         GameType.UNKNOWN
     }
+    val maxPlayers = json["limit"]?.primitive?.int ?: 1
     val private = json["password"]?.primitive?.boolean ?: false
     val ingame = json["gaming"]?.primitive?.boolean ?: false
-    return Room(id, name, type, !private, ingame)
+    val userIds = json["players"]?.jsonArray?.map {
+        if (it is JsonPrimitive) {
+            it.primitive.content
+        } else "Bot"
+    } ?: emptyList()
+    return Room(id, name, type, maxPlayers, !private, ingame, userIds)
 }
 
 fun Frame.Binary.decodeBinaryChat() = ByteBuffer.wrap(readBytes()).run {
