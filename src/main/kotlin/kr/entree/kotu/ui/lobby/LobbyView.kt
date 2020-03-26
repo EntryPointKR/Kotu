@@ -1,4 +1,4 @@
-package kr.entree.kotu.lobby
+package kr.entree.kotu.ui.lobby
 
 import javafx.scene.control.ListView
 import javafx.scene.control.TableView
@@ -35,6 +35,7 @@ class LobbyView : View() {
                 val room = selectedItem ?: return@onDoubleClick
                 controller.join(room)
             }
+            smartResize()
             roomView = this
         }
         bottom = vbox {

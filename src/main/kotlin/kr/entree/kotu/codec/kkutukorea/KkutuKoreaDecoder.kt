@@ -12,10 +12,7 @@ import kr.entree.kotu.data.User
 import kr.entree.kotu.mainJson
 import kr.entree.kotu.packet.Empty
 import kr.entree.kotu.packet.Unknown
-import kr.entree.kotu.packet.input.Chat
-import kr.entree.kotu.packet.input.ChatType
-import kr.entree.kotu.packet.input.Disconnect
-import kr.entree.kotu.packet.input.Welcome
+import kr.entree.kotu.packet.input.*
 import java.nio.ByteBuffer
 
 fun Frame.Text.decodeJson(): Any {
@@ -32,6 +29,7 @@ fun Frame.Text.decodeJson(): Any {
         "conn" -> decodeUser(element["user"]!!.jsonObject)
         "disconn" -> Disconnect(element["id"]!!.primitive.content)
         "room" -> decodeRoom(element["room"]!!.jsonObject)
+        "preRoom" -> PreRoom(element["id"]!!.primitive.int, element["channel"]?.primitive?.content ?: "5")
         else -> Unknown(type, element)
     }
 }

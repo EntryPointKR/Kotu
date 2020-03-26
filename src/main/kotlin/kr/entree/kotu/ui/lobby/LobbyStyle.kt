@@ -1,4 +1,4 @@
-package kr.entree.kotu.lobby
+package kr.entree.kotu.ui.lobby
 
 import javafx.scene.paint.Color
 import tornadofx.Stylesheet

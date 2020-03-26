@@ -22,7 +22,7 @@ fun encodeKkutuKorea(packet: Any): Frame =
         }
         is RoomEnter -> {
             Frame.Text(json {
-                "type" to "preRoom"
+                "type" to "enter"
                 "id" to packet.id
                 "channel" to packet.channel
             }.toString())
