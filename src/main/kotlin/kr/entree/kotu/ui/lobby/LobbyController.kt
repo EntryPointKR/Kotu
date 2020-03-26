@@ -1,8 +1,8 @@
 package kr.entree.kotu.ui.lobby
 
 import io.ktor.http.URLBuilder
-import kr.entree.kotu.data.Room
-import kr.entree.kotu.data.User
+import kr.entree.kotu.ui.data.Room
+import kr.entree.kotu.ui.data.User
 import kr.entree.kotu.packet.Unknown
 import kr.entree.kotu.packet.input.Chat
 import kr.entree.kotu.packet.input.Disconnect
@@ -24,10 +24,7 @@ class LobbyController : Controller() {
             is Chat -> gameManager.users[packet.sender]?.apply {
                 lobbyView.chat("$name: ${packet.message}")
             }
-            is Welcome -> {
-                gameManager.init(packet)
-                lobbyView.update()
-            }
+            is Welcome -> gameManager.init(packet)
             is Room -> gameManager.rooms[packet.id] = packet
             is User -> gameManager.users[packet.id] = packet
             is Disconnect -> gameManager.users.remove(packet.id)

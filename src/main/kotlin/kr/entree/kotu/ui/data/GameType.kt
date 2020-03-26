@@ -1,4 +1,4 @@
-package kr.entree.kotu.data
+package kr.entree.kotu.ui.data
 
 enum class GameType(val gameName: String) {
     UNKNOWN("알 수 없음"),

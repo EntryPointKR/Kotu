@@ -1,7 +1,7 @@
 package kr.entree.kotu.packet.input
 
-import kr.entree.kotu.data.Room
-import kr.entree.kotu.data.User
+import kr.entree.kotu.ui.data.Room
+import kr.entree.kotu.ui.data.User
 
 class Welcome {
     val users = mutableMapOf<String, User>()

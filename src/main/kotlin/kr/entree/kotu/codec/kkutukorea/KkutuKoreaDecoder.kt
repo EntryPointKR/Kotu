@@ -6,9 +6,9 @@ import io.ktor.http.cio.websocket.readText
 import kotlinx.serialization.json.JsonObject
 import kr.entree.kotu.codec.getStringWhileZero
 import kr.entree.kotu.codec.getUnsignedByte
-import kr.entree.kotu.data.GameType
-import kr.entree.kotu.data.Room
-import kr.entree.kotu.data.User
+import kr.entree.kotu.ui.data.GameType
+import kr.entree.kotu.ui.data.Room
+import kr.entree.kotu.ui.data.User
 import kr.entree.kotu.mainJson
 import kr.entree.kotu.packet.Empty
 import kr.entree.kotu.packet.Unknown

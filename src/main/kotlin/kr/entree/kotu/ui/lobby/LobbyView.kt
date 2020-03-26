@@ -6,8 +6,8 @@ import javafx.scene.control.TextArea
 import javafx.scene.control.TextField
 import javafx.scene.input.KeyCode
 import javafx.stage.Screen
-import kr.entree.kotu.data.Room
 import kr.entree.kotu.manager.GameManager
+import kr.entree.kotu.ui.data.Room
 import tornadofx.*
 
 class LobbyView : View() {
@@ -20,13 +20,14 @@ class LobbyView : View() {
 
     override val root = borderpane {
         left = listview<String> {
+            items.bind(gameManager.users) { _, user -> user.name }
             userView = this
         }
         center = tableview<Room> {
-            readonlyColumn("#", Room::id)
-            readonlyColumn("이름", Room::name)
-            readonlyColumn("종류", Room::typeName)
-            readonlyColumn("공개", Room::public).cellFormat {
+            column("#", Room::idProperty)
+            column("이름", Room::nameProperty)
+            column("종류", Room::typeName)
+            column("공개", Room::publicProperty).cellFormat {
                 tableRow.toggleClass(LobbyStyle.publicRoom, it)
                 tableRow.toggleClass(LobbyStyle.privateRoom, !it)
                 text = if (it) "공개" else "비공개"
@@ -35,6 +36,7 @@ class LobbyView : View() {
                 val room = selectedItem ?: return@onDoubleClick
                 controller.join(room)
             }
+            items.bind(gameManager.rooms) { _, room -> room }
             smartResize()
             roomView = this
         }
@@ -62,12 +64,5 @@ class LobbyView : View() {
     fun chat(message: String) {
         chatArea.appendText(message)
         chatArea.appendText("\n")
-    }
-
-    fun update() {
-        userView.items.clear()
-        userView.items.addAll(gameManager.users.map { it.value.name })
-        roomView.items.clear()
-        roomView.items.addAll(gameManager.rooms.values)
     }
 }
