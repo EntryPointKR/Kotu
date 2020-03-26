@@ -15,10 +15,10 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import kr.entree.kotu.codec.kkutukorea.decodeKkutuKorea
 import kr.entree.kotu.codec.kkutukorea.encodeKkutuKorea
+import kr.entree.kotu.standard.substringBetween
 import kr.entree.kotu.ui.lobby.LobbyController
 import kr.entree.kotu.ui.lobby.LobbyStyle
 import kr.entree.kotu.ui.lobby.LobbyView
-import kr.entree.kotu.standard.substringBetween
 import tornadofx.App
 import tornadofx.UIComponent
 import tornadofx.launch

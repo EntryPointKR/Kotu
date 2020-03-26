@@ -6,13 +6,13 @@ import io.ktor.http.cio.websocket.readText
 import kotlinx.serialization.json.JsonObject
 import kr.entree.kotu.codec.getStringWhileZero
 import kr.entree.kotu.codec.getUnsignedByte
-import kr.entree.kotu.ui.data.GameType
-import kr.entree.kotu.ui.data.Room
-import kr.entree.kotu.ui.data.User
 import kr.entree.kotu.mainJson
 import kr.entree.kotu.packet.Empty
 import kr.entree.kotu.packet.Unknown
 import kr.entree.kotu.packet.input.*
+import kr.entree.kotu.ui.data.GameType
+import kr.entree.kotu.ui.data.Room
+import kr.entree.kotu.ui.data.User
 import java.nio.ByteBuffer
 
 fun Frame.Text.decodeJson(): Any {
@@ -55,7 +55,8 @@ fun decodeRoom(json: JsonObject): Room {
         GameType.UNKNOWN
     }
     val private = json["password"]?.primitive?.boolean ?: false
-    return Room(id, name, type, !private)
+    val ingame = json["gaming"]?.primitive?.boolean ?: false
+    return Room(id, name, type, !private, ingame)
 }
 
 fun Frame.Binary.decodeBinaryChat() = ByteBuffer.wrap(readBytes()).run {

@@ -11,7 +11,8 @@ class Room(
     id: String,
     name: String,
     type: GameType,
-    public: Boolean
+    public: Boolean,
+    ingame: Boolean
 ) {
     val idProperty = SimpleStringProperty(id)
     var id by idProperty
@@ -21,5 +22,7 @@ class Room(
     var type by typeProperty
     val publicProperty = SimpleBooleanProperty(public)
     var public by publicProperty
-    val typeName get() = typeProperty.objectBinding { it?.gameName }
+    val typeName = typeProperty.objectBinding { it?.gameName }
+    val ingameProperty = SimpleBooleanProperty(ingame)
+    var ingame by ingameProperty
 }

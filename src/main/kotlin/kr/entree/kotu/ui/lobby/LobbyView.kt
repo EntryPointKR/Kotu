@@ -10,7 +10,7 @@ import kr.entree.kotu.manager.GameManager
 import kr.entree.kotu.ui.data.Room
 import tornadofx.*
 
-class LobbyView : View() {
+class LobbyView : View("Kotu") {
     val controller: LobbyController by inject()
     var userView: ListView<String> by singleAssign()
     var roomView: TableView<Room> by singleAssign()
@@ -31,6 +31,10 @@ class LobbyView : View() {
                 tableRow.toggleClass(LobbyStyle.publicRoom, it)
                 tableRow.toggleClass(LobbyStyle.privateRoom, !it)
                 text = if (it) "공개" else "비공개"
+            }
+            column("상태", Room::ingameProperty).cellFormat {
+                tableRow.toggleClass(LobbyStyle.ingameRoom, it)
+                text = if (it) "게임중" else "대기중"
             }
             onDoubleClick {
                 val room = selectedItem ?: return@onDoubleClick
