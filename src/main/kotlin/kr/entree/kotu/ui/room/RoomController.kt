@@ -10,8 +10,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.entree.kotu.codec.Codec
 import kr.entree.kotu.network.Connection
-import kr.entree.kotu.packet.input.Chat
-import kr.entree.kotu.packet.output.ChatOut
+import kr.entree.kotu.packet.inbound.Chat
+import outbound.output.ChatOut
 import kr.entree.kotu.startWebSocket
 import kr.entree.kotu.ui.component.UserCard
 import kr.entree.kotu.ui.data.GameRoom

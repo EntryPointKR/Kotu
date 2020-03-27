@@ -1,4 +1,4 @@
-package kr.entree.kotu.packet.input
+package kr.entree.kotu.packet.inbound
 
 import kr.entree.kotu.ui.data.Room
 import kr.entree.kotu.ui.data.User

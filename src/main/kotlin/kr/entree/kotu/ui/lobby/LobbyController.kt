@@ -10,12 +10,7 @@ import kotlinx.coroutines.withContext
 import kr.entree.kotu.codec.Codec
 import kr.entree.kotu.manager.GameManager
 import kr.entree.kotu.packet.Unknown
-import kr.entree.kotu.packet.input.Chat
-import kr.entree.kotu.packet.input.Disconnect
-import kr.entree.kotu.packet.input.PreRoom
-import kr.entree.kotu.packet.input.Welcome
-import kr.entree.kotu.packet.output.ChatOut
-import kr.entree.kotu.packet.output.RoomEnter
+import kr.entree.kotu.packet.inbound.*
 import kr.entree.kotu.retrieveWebSocketUrl
 import kr.entree.kotu.startWebSocket
 import kr.entree.kotu.ui.data.GameRoom
@@ -23,6 +18,8 @@ import kr.entree.kotu.ui.data.Room
 import kr.entree.kotu.ui.data.User
 import kr.entree.kotu.ui.room.RoomController
 import kr.entree.kotu.ui.room.RoomView
+import outbound.output.ChatOut
+import outbound.output.RoomEnter
 import tornadofx.Controller
 import tornadofx.singleAssign
 
@@ -84,6 +81,7 @@ class LobbyController : Controller() {
             is Disconnect -> gameManager.users.remove(packet.id)
             is Unknown -> System.err.println("Uncaught packet type: ${packet.type} - ${packet.element}")
             is PreRoom -> join(packet)
+            is Yell -> view.chat("[공지] ${packet.message}")
             else -> System.err.println("Not processed packet: ${packet.javaClass.name} $packet")
         }
     }

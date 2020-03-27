@@ -10,7 +10,7 @@ import kr.entree.kotu.codec.Decoder
 import kr.entree.kotu.codec.getStringWhileZero
 import kr.entree.kotu.codec.getUnsignedByte
 import kr.entree.kotu.packet.Unknown
-import kr.entree.kotu.packet.input.*
+import kr.entree.kotu.packet.inbound.*
 import kr.entree.kotu.ui.data.GameType
 import kr.entree.kotu.ui.data.Room
 import kr.entree.kotu.ui.data.User
@@ -66,6 +66,7 @@ class KkutuKoreaDecoder : Decoder {
             "disconn" -> Disconnect(element["id"]!!.primitive.content)
             "room" -> decodeRoom(element["room"]!!.jsonObject)
             "preRoom" -> PreRoom(element["id"]!!.primitive.int, element["channel"]?.primitive?.content ?: "5")
+            "yell" -> Yell(element["value"]?.primitive?.content ?: "null")
             else -> Unknown(type, element)
         }
     }

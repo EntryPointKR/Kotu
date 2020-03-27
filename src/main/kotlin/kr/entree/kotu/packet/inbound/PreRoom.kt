@@ -1,4 +1,4 @@
-package kr.entree.kotu.packet.input
+package kr.entree.kotu.packet.inbound
 
 import io.ktor.http.URLBuilder
 

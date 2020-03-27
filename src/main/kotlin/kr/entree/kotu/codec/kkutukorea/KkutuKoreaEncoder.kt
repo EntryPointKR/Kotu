@@ -3,8 +3,8 @@ package kr.entree.kotu.codec.kkutukorea
 import io.ktor.http.cio.websocket.Frame
 import kotlinx.serialization.json.json
 import kr.entree.kotu.codec.Encoder
-import kr.entree.kotu.packet.output.ChatOut
-import kr.entree.kotu.packet.output.RoomEnter
+import outbound.output.ChatOut
+import outbound.output.RoomEnter
 import java.nio.ByteBuffer
 
 /**
