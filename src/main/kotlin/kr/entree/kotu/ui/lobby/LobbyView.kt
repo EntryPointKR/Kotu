@@ -6,11 +6,18 @@ import javafx.scene.control.TextArea
 import javafx.scene.control.TextField
 import javafx.scene.input.KeyCode
 import javafx.stage.Screen
+import kr.entree.kotu.codec.Codec
+import kr.entree.kotu.codec.kkutukorea.KkutuKorea
 import kr.entree.kotu.ui.data.Room
 import tornadofx.*
 
-class LobbyView : View("Kotu") {
-    val controller by inject<LobbyController>()
+class LobbyView(
+    codec: Codec = KkutuKorea // TODO: Make it mutable
+) : View("Kotu") {
+    val controller by inject<LobbyController>(
+        scope,
+        "codec" to codec
+    )
     var userView: ListView<String> by singleAssign()
     var roomView: TableView<Room> by singleAssign()
     var chatArea: TextArea by singleAssign()

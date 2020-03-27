@@ -2,33 +2,33 @@ package kr.entree.kotu.ui.lobby
 
 import io.ktor.http.URLBuilder
 import io.ktor.http.cio.websocket.Frame
-import javafx.collections.ObservableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kr.entree.kotu.codec.kkutukorea.decodeKkutuKorea
-import kr.entree.kotu.codec.kkutukorea.encodeKkutuKorea
+import kr.entree.kotu.codec.Codec
 import kr.entree.kotu.manager.GameManager
 import kr.entree.kotu.packet.Unknown
 import kr.entree.kotu.packet.input.Chat
 import kr.entree.kotu.packet.input.Disconnect
 import kr.entree.kotu.packet.input.PreRoom
 import kr.entree.kotu.packet.input.Welcome
-import kr.entree.kotu.packet.output.LobbyChat
+import kr.entree.kotu.packet.output.ChatOut
 import kr.entree.kotu.packet.output.RoomEnter
 import kr.entree.kotu.retrieveWebSocketUrl
 import kr.entree.kotu.startWebSocket
+import kr.entree.kotu.ui.data.GameRoom
 import kr.entree.kotu.ui.data.Room
 import kr.entree.kotu.ui.data.User
+import kr.entree.kotu.ui.room.RoomController
 import kr.entree.kotu.ui.room.RoomView
 import tornadofx.Controller
-import tornadofx.bind
 import tornadofx.singleAssign
 
 class LobbyController : Controller() {
     val view by inject<LobbyView>()
+    val codec by param<Codec>()
     val gameManager = GameManager()
     val users get() = gameManager.users
     val rooms get() = gameManager.rooms
@@ -41,14 +41,14 @@ class LobbyController : Controller() {
             val wsUrl = retrieveWebSocketUrl()
             url = URLBuilder(wsUrl)
             startWebSocket(wsUrl, channel) {
-                val packet = decodeKkutuKorea(it)
+                val packet = codec.decode(it)
                 withContext(Dispatchers.Main) {
                     onPacket(packet)
                 }
             }
         }
         packetSender = {
-            val packet = encodeKkutuKorea(it)
+            val packet = codec.encode(it)
             GlobalScope.launch(Dispatchers.IO) {
                 channel.send(packet)
             }
@@ -84,16 +84,8 @@ class LobbyController : Controller() {
         }
     }
 
-    fun bindUsers(strings: ObservableList<String>) {
-        strings.bind(gameManager.users) { _, user -> user.name }
-    }
-
-    fun bindRooms(rooms: ObservableList<Room>) {
-        rooms.bind(gameManager.rooms) { _, room -> room }
-    }
-
     fun chat(message: String) {
-        packetSender(LobbyChat(message))
+        packetSender(ChatOut(message))
     }
 
     fun join(room: Room) {
@@ -102,14 +94,15 @@ class LobbyController : Controller() {
 
     fun join(preRoom: PreRoom) {
         val room = gameManager.rooms[preRoom.id.toString()] ?: return
-        val connection = startWebSocket(preRoom.webSocketUrl(url).buildString()) {
-            val decode = decodeKkutuKorea(it)
-            withContext(Dispatchers.Main) {
-
-            }
-        }
-        RoomView(room, gameManager, connection).apply {
-            openWindow()
-        }
+        setInScope(
+            RoomController(
+                GameRoom(room, gameManager),
+                preRoom.webSocketUrl(url),
+                codec
+            ), scope
+        )
+        find<RoomView>().apply {
+            title = "${room.id} 번방"
+        }.openWindow()
     }
 }

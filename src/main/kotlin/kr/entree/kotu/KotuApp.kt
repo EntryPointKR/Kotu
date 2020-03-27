@@ -19,28 +19,22 @@ import kr.entree.kotu.ui.lobby.LobbyView
 import tornadofx.App
 import tornadofx.launch
 
-val mainJson = Json(JsonConfiguration.Stable)
-
 suspend inline fun startWebSocket(url: String, queue: Channel<Frame>, crossinline receiver: suspend (Frame) -> Unit) {
     HttpClient {
         install(WebSockets)
     }.wss(url) {
-        joinAll(
-            launch {
-                while (isActive) {
-                    val frame = incoming.receive()
-                    withContext(Dispatchers.Main) {
-                        receiver(frame)
-                    }
-                }
-            },
-            launch {
-                while (isActive) {
-                    val out = queue.receive()
-                    send(out)
-                }
+        launch {
+            while (isActive) {
+                val out = queue.receive()
+                send(out)
             }
-        )
+        }
+        while (isActive) {
+            val frame = incoming.receive()
+            withContext(Dispatchers.Main) {
+                receiver(frame)
+            }
+        }
     }
 }
 
@@ -49,7 +43,10 @@ suspend inline fun retrieveWebSocketUrl() =
         "<span id=\"URL\">", "</span>"
     )
 
-inline fun startWebSocket(url: String, crossinline receiver: suspend (Frame) -> Unit = {}): Connection<Frame> {
+inline fun startWebSocket(
+    url: String,
+    crossinline receiver: suspend CoroutineScope.(Frame) -> Unit = {}
+): Connection<Frame> {
     val channel = Channel<Frame>()
     val job = GlobalScope.launch(Dispatchers.IO) {
         startWebSocket(url, channel) {
@@ -63,4 +60,8 @@ fun main() {
     launch<KotuApp>()
 }
 
-class KotuApp : App(LobbyView::class, LobbyStyle::class)
+class KotuApp : App(LobbyView::class, LobbyStyle::class) {
+    companion object {
+        val JSON = Json(JsonConfiguration.Stable)
+    }
+}
