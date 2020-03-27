@@ -62,6 +62,10 @@ class LobbyController : Controller() {
             }
             is Welcome -> gameManager.init(packet)
             is Room -> {
+                if (packet.userIds.isEmpty()) {
+                    gameManager.rooms.remove(packet.id)
+                    return
+                }
                 val original = gameManager.rooms[packet.id]
                 if (original != null) {
                     original.update(packet)
