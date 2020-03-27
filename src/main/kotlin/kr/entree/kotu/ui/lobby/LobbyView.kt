@@ -6,21 +6,19 @@ import javafx.scene.control.TextArea
 import javafx.scene.control.TextField
 import javafx.scene.input.KeyCode
 import javafx.stage.Screen
-import kr.entree.kotu.manager.GameManager
 import kr.entree.kotu.ui.data.Room
 import tornadofx.*
 
 class LobbyView : View("Kotu") {
-    val controller: LobbyController by inject()
+    val controller by inject<LobbyController>()
     var userView: ListView<String> by singleAssign()
     var roomView: TableView<Room> by singleAssign()
     var chatArea: TextArea by singleAssign()
     var chatField: TextField by singleAssign()
-    val gameManager = GameManager()
 
     override val root = borderpane {
         left = listview<String> {
-            items.bind(gameManager.users) { _, user -> user.name }
+            items.bind(controller.users) { _, user -> user.name }
             userView = this
         }
         center = tableview<Room> {
@@ -44,8 +42,8 @@ class LobbyView : View("Kotu") {
                 val room = selectedItem ?: return@onDoubleClick
                 controller.join(room)
             }
-            items.bind(gameManager.rooms) { _, room -> room }
             smartResize()
+            items.bind(controller.rooms) { _, room -> room }
             roomView = this
         }
         bottom = vbox {
@@ -67,6 +65,10 @@ class LobbyView : View("Kotu") {
             primaryStage.x = minWidth / 2
             primaryStage.y = minHeight / 2
         }
+    }
+
+    override fun onBeforeShow() {
+        controller.connect()
     }
 
     fun chat(message: String) {

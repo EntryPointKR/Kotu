@@ -14,7 +14,7 @@ class LobbyStyle : Stylesheet() {
 
     init {
         privateRoom {
-            backgroundColor += Color.LIGHTPINK
+            backgroundColor += Color.WHITE.darker()
             and(selected) {
                 backgroundColor += c("#0096C9", .5)
             }
