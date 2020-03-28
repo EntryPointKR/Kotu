@@ -10,12 +10,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.entree.kotu.codec.Codec
 import kr.entree.kotu.network.Connection
-import kr.entree.kotu.packet.Unknown
-import kr.entree.kotu.packet.inbound.Chat
-import kr.entree.kotu.packet.inbound.Error
-import kr.entree.kotu.packet.outbound.ChatOut
+import kr.entree.kotu.packet.Packet
 import kr.entree.kotu.startWebSocket
-import kr.entree.kotu.ui.component.UserCard
+import kr.entree.kotu.ui.component.PlayerCard
+import kr.entree.kotu.ui.data.GamePlayer
 import kr.entree.kotu.ui.data.GameRoom
 import kr.entree.kotu.ui.data.User
 import tornadofx.Controller
@@ -34,28 +32,28 @@ class RoomController(
     var connection: Connection<Frame>? = null
 
     fun bindPlayers(children: ObservableList<Node>) {
-        children.bind(gameRoom.room.userIds) {
-            UserCard(gameRoom.gameManager.users[it] ?: User.EMPTY).root
+        children.bind(gameRoom.room.players) {
+            PlayerCard(it ?: GamePlayer.EMPTY).root
         }
     }
 
     fun onPacket(packet: Any) {
         when (packet) {
-            is Chat -> {
+            is Packet.In.Chat -> {
                 val user = gameRoom.gameManager.users[packet.sender] ?: User.EMPTY
                 view.chat("${user.name}: ${packet.message}")
             }
-            is Error -> {
+            is Packet.In.Error -> {
                 error("에러", "에러코드: ${packet.code}", owner = view.currentWindow)
                 view.close()
             }
-            is Unknown -> System.err.println("Unknown packet: ${packet.type} ${packet.element}")
+            is Packet.In.Unknown -> System.err.println("Unknown packet: ${packet.type} ${packet.element}")
             else -> System.err.println("Uncaught packet: ${packet.javaClass.name}")
         }
     }
 
     fun chat(message: String) {
-        sendPacket(ChatOut(message))
+        sendPacket(Packet.Out.Chat(message))
     }
 
     fun sendPacket(packet: Any) {

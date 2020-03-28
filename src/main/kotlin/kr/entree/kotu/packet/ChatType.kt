@@ -1,18 +1,8 @@
-package kr.entree.kotu.packet.inbound
+package kr.entree.kotu.packet
 
-class Chat(
-    val sender: String,
-    val message: String
-)
-
-/*
-data: 5
-default: 1
-game: 3
-notice: 4
-whisper: 2
+/**
+ * Created by JunHyung Lim on 2020-03-28
  */
-
 enum class ChatType(val id: Int) {
     DEFAULT(1),
     WHISPER(2),

@@ -10,21 +10,19 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.entree.kotu.codec.Codec
 import kr.entree.kotu.manager.GameManager
-import kr.entree.kotu.packet.Unknown
-import kr.entree.kotu.packet.inbound.*
-import kr.entree.kotu.packet.outbound.ChatOut
-import kr.entree.kotu.packet.outbound.RoomEnter
+import kr.entree.kotu.packet.Packet
+import kr.entree.kotu.packet.webSocketUrl
 import kr.entree.kotu.retrieveWebSocketUrl
 import kr.entree.kotu.startWebSocket
 import kr.entree.kotu.ui.data.GameRoom
 import kr.entree.kotu.ui.data.Room
-import kr.entree.kotu.ui.data.User
+import kr.entree.kotu.ui.data.roomOf
+import kr.entree.kotu.ui.data.userOf
 import kr.entree.kotu.ui.room.RoomController
 import kr.entree.kotu.ui.room.RoomView
 import kr.entree.kotu.ui.wizard.awaitTextInput
 import tornadofx.Controller
 import tornadofx.singleAssign
-import kotlin.collections.set
 
 class LobbyController : Controller() {
     val view by inject<LobbyView>()
@@ -57,12 +55,12 @@ class LobbyController : Controller() {
 
     fun onPacket(packet: Any) {
         when (packet) {
-            is Chat -> gameManager.users[packet.sender]?.apply {
+            is Packet.In.Chat -> gameManager.users[packet.sender]?.apply {
                 view.chat("$name: ${packet.message}")
             }
-            is Welcome -> gameManager.init(packet)
-            is Room -> {
-                if (packet.userIds.isEmpty()) {
+            is Packet.In.Welcome -> gameManager.init(packet)
+            is Packet.In.Room -> {
+                if (packet.players.isEmpty()) {
                     gameManager.rooms.remove(packet.id)
                     return
                 }
@@ -70,41 +68,41 @@ class LobbyController : Controller() {
                 if (original != null) {
                     original.update(packet)
                 } else {
-                    gameManager.rooms[packet.id] = packet
+                    gameManager += roomOf(packet)
                 }
             }
-            is User -> {
+            is Packet.In.User -> {
                 val original = gameManager.users[packet.id]
                 if (original != null) {
                     original.update(packet)
                 } else {
-                    gameManager.users[packet.id] = packet
+                    gameManager += userOf(packet)
                 }
             }
-            is Disconnect -> gameManager.users.remove(packet.id)
-            is Unknown -> System.err.println("Uncaught packet type: ${packet.type} - ${packet.element}")
-            is PreRoom -> join(packet)
-            is Yell -> view.chat("[공지] ${packet.message}")
+            is Packet.In.Disconnect -> gameManager.users.remove(packet.id)
+            is Packet.In.Unknown -> System.err.println("Uncaught packet type: ${packet.type} - ${packet.element}")
+            is Packet.In.PreRoom -> join(packet)
+            is Packet.In.Yell -> view.chat("[공지] ${packet.message}")
             else -> System.err.println("Not processed packet: ${packet.javaClass.name} $packet")
         }
     }
 
     fun chat(message: String) {
-        packetSender(ChatOut(message))
+        packetSender(Packet.Out.Chat(message))
     }
 
     fun join(room: Room) {
         if (room.public) {
-            packetSender(RoomEnter(room.id.toInt(), "4"))
+            packetSender(Packet.Out.RoomEnter(room.id.toInt(), "4"))
             return
         }
         GlobalScope.launch(Dispatchers.JavaFx) {
             val password = awaitTextInput("방 비밀번호")
-            packetSender(RoomEnter(room.id.toInt(), "4", password))
+            packetSender(Packet.Out.RoomEnter(room.id.toInt(), "4", password))
         }
     }
 
-    fun join(preRoom: PreRoom) {
+    fun join(preRoom: Packet.In.PreRoom) {
         val room = gameManager.rooms[preRoom.id.toString()] ?: return
         setInScope(
             RoomController(
