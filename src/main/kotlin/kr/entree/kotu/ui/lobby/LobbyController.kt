@@ -5,12 +5,15 @@ import io.ktor.http.cio.websocket.Frame
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.entree.kotu.codec.Codec
 import kr.entree.kotu.manager.GameManager
 import kr.entree.kotu.packet.Unknown
 import kr.entree.kotu.packet.inbound.*
+import kr.entree.kotu.packet.outbound.ChatOut
+import kr.entree.kotu.packet.outbound.RoomEnter
 import kr.entree.kotu.retrieveWebSocketUrl
 import kr.entree.kotu.startWebSocket
 import kr.entree.kotu.ui.data.GameRoom
@@ -18,10 +21,10 @@ import kr.entree.kotu.ui.data.Room
 import kr.entree.kotu.ui.data.User
 import kr.entree.kotu.ui.room.RoomController
 import kr.entree.kotu.ui.room.RoomView
-import outbound.output.ChatOut
-import outbound.output.RoomEnter
+import kr.entree.kotu.ui.wizard.awaitTextInput
 import tornadofx.Controller
 import tornadofx.singleAssign
+import kotlin.collections.set
 
 class LobbyController : Controller() {
     val view by inject<LobbyView>()
@@ -91,7 +94,14 @@ class LobbyController : Controller() {
     }
 
     fun join(room: Room) {
-        packetSender(RoomEnter(room.id.toInt(), "4"))
+        if (room.public) {
+            packetSender(RoomEnter(room.id.toInt(), "4"))
+            return
+        }
+        GlobalScope.launch(Dispatchers.JavaFx) {
+            val password = awaitTextInput("방 비밀번호")
+            packetSender(RoomEnter(room.id.toInt(), "4", password))
+        }
     }
 
     fun join(preRoom: PreRoom) {

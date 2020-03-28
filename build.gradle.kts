@@ -38,6 +38,6 @@ tasks {
         kotlinOptions.jvmTarget = "1.8"
     }
     build {
-        dependsOn(jar)
+        dependsOn(shadowJar)
     }
 }

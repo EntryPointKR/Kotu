@@ -26,6 +26,27 @@ class KkutuKoreaDecoder : Decoder {
         else -> Unit
     }
 
+    fun Frame.Text.decodeJson(): Any {
+        val element = KotuApp.JSON.parseJson(readText()).jsonObject
+        return when (val type = element["type"]!!.primitive.content) {
+            "welcome" -> Welcome().apply {
+                element["users"]?.jsonObject?.forEach { (id, element) ->
+                    users[id] = decodeUser(element.jsonObject)
+                }
+                element["rooms"]?.jsonObject?.forEach { (id, element) ->
+                    rooms[id] = decodeRoom(element.jsonObject)
+                }
+            }
+            "conn" -> decodeUser(element["user"]!!.jsonObject)
+            "disconn" -> Disconnect(element["id"]!!.primitive.content)
+            "room" -> decodeRoom(element["room"]!!.jsonObject)
+            "preRoom" -> PreRoom(element["id"]!!.primitive.int, element["channel"]?.primitive?.content ?: "5")
+            "yell" -> Yell(element["value"]?.primitive?.content ?: "null")
+            "error" -> Error(element["code"]?.primitive?.content ?: "null")
+            else -> Unknown(type, element)
+        }
+    }
+
     fun decodeUser(json: JsonObject): User {
         val id = json["id"]!!.primitive.content
         val nick = json["profile"]?.jsonObject?.get("nick")?.primitive?.content ?: "알 수 없음"
@@ -49,26 +70,6 @@ class KkutuKoreaDecoder : Decoder {
             } else "Bot"
         } ?: emptyList()
         return Room(id, name, type, maxPlayers, !private, ingame, userIds)
-    }
-
-    fun Frame.Text.decodeJson(): Any {
-        val element = KotuApp.JSON.parseJson(readText()).jsonObject
-        return when (val type = element["type"]!!.primitive.content) {
-            "welcome" -> Welcome().apply {
-                element["users"]?.jsonObject?.forEach { (id, element) ->
-                    users[id] = decodeUser(element.jsonObject)
-                }
-                element["rooms"]?.jsonObject?.forEach { (id, element) ->
-                    rooms[id] = decodeRoom(element.jsonObject)
-                }
-            }
-            "conn" -> decodeUser(element["user"]!!.jsonObject)
-            "disconn" -> Disconnect(element["id"]!!.primitive.content)
-            "room" -> decodeRoom(element["room"]!!.jsonObject)
-            "preRoom" -> PreRoom(element["id"]!!.primitive.int, element["channel"]?.primitive?.content ?: "5")
-            "yell" -> Yell(element["value"]?.primitive?.content ?: "null")
-            else -> Unknown(type, element)
-        }
     }
 
     fun Frame.Binary.decodeBinaryChat() = ByteBuffer.wrap(readBytes()).run {

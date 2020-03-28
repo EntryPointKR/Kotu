@@ -10,14 +10,17 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.entree.kotu.codec.Codec
 import kr.entree.kotu.network.Connection
+import kr.entree.kotu.packet.Unknown
 import kr.entree.kotu.packet.inbound.Chat
-import outbound.output.ChatOut
+import kr.entree.kotu.packet.inbound.Error
+import kr.entree.kotu.packet.outbound.ChatOut
 import kr.entree.kotu.startWebSocket
 import kr.entree.kotu.ui.component.UserCard
 import kr.entree.kotu.ui.data.GameRoom
 import kr.entree.kotu.ui.data.User
 import tornadofx.Controller
 import tornadofx.bind
+import tornadofx.error
 
 /**
  * Created by JunHyung Lim on 2020-03-27
@@ -27,7 +30,7 @@ class RoomController(
     val socketUrl: URLBuilder,
     val codec: Codec
 ) : Controller() {
-    val view by lazy { find<RoomView>() }
+    val view by inject<RoomView>()
     var connection: Connection<Frame>? = null
 
     fun bindPlayers(children: ObservableList<Node>) {
@@ -42,6 +45,11 @@ class RoomController(
                 val user = gameRoom.gameManager.users[packet.sender] ?: User.EMPTY
                 view.chat("${user.name}: ${packet.message}")
             }
+            is Error -> {
+                error("에러", "에러코드: ${packet.code}", owner = view.currentWindow)
+                view.close()
+            }
+            is Unknown -> System.err.println("Unknown packet: ${packet.type} ${packet.element}")
             else -> System.err.println("Uncaught packet: ${packet.javaClass.name}")
         }
     }

@@ -3,8 +3,8 @@ package kr.entree.kotu.codec.kkutukorea
 import io.ktor.http.cio.websocket.Frame
 import kotlinx.serialization.json.json
 import kr.entree.kotu.codec.Encoder
-import outbound.output.ChatOut
-import outbound.output.RoomEnter
+import kr.entree.kotu.packet.outbound.ChatOut
+import kr.entree.kotu.packet.outbound.RoomEnter
 import java.nio.ByteBuffer
 
 /**
@@ -13,7 +13,7 @@ import java.nio.ByteBuffer
 class KkutuKoreaEncoder : Encoder {
     override fun encode(packet: Any): Frame = when (packet) {
         is ChatOut -> {
-            val buffer = ByteBuffer.allocate(packet.message.length + 16)
+            val buffer = ByteBuffer.allocate(packet.message.length * 4 + 16)
             buffer.put(KkutuKorea.PacketType.CHAT.toByte())
             buffer.put(1) // type
             buffer.put(0) // zero for marking end
@@ -25,7 +25,9 @@ class KkutuKoreaEncoder : Encoder {
             Frame.Text(json {
                 "type" to "enter"
                 "id" to packet.id
-                "channel" to packet.channel
+                if (packet.password.isNotBlank()) {
+                    "password" to packet.password
+                }
             }.toString())
         }
         else -> throw NotImplementedError(packet.javaClass.simpleName)
