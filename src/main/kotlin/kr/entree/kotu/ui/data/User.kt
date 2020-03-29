@@ -2,12 +2,10 @@ package kr.entree.kotu.ui.data
 
 import javafx.beans.property.SimpleStringProperty
 import kr.entree.kotu.manager.GameManager
-import kr.entree.kotu.packet.Packet
+import kr.entree.kotu.network.UserData
+import kr.entree.kotu.network.packet.Game
 import tornadofx.getValue
 import tornadofx.setValue
-
-fun userOf(user: Packet.In.User) =
-    User().apply { update(user) }
 
 class User {
     lateinit var manager: GameManager
@@ -23,8 +21,8 @@ class User {
         }
     }
 
-    fun update(user: Packet.In.User) {
-        id = user.id
-        name = user.name
+    fun update(data: UserData) {
+        id = data.id
+        name = data.name
     }
 }

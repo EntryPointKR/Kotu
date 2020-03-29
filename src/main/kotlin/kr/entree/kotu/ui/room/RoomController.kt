@@ -8,13 +8,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kr.entree.kotu.codec.Codec
 import kr.entree.kotu.network.Connection
-import kr.entree.kotu.packet.Packet
+import kr.entree.kotu.network.codec.kkutukorea.Environment
+import kr.entree.kotu.network.packet.Packet
 import kr.entree.kotu.startWebSocket
 import kr.entree.kotu.ui.component.PlayerCard
-import kr.entree.kotu.ui.data.GamePlayer
-import kr.entree.kotu.ui.data.GameRoom
+import kr.entree.kotu.ui.data.Room
+import kr.entree.kotu.ui.data.RoomPlayer
 import kr.entree.kotu.ui.data.User
 import tornadofx.Controller
 import tornadofx.bind
@@ -24,29 +24,32 @@ import tornadofx.error
  * Created by JunHyung Lim on 2020-03-27
  */
 class RoomController(
-    val gameRoom: GameRoom,
+    val room: Room,
     val socketUrl: URLBuilder,
-    val codec: Codec
+    val environment: Environment
 ) : Controller() {
     val view by inject<RoomView>()
     var connection: Connection<Frame>? = null
 
     fun bindPlayers(children: ObservableList<Node>) {
-        children.bind(gameRoom.room.players) {
-            PlayerCard(it ?: GamePlayer.EMPTY).root
+        children.bind(room.players) { _, player ->
+            PlayerCard(player ?: RoomPlayer.EMPTY).root
         }
     }
 
-    fun onPacket(packet: Any) {
+    fun onPacket(packet: Packet) {
         when (packet) {
             is Packet.In.Chat -> {
-                val user = gameRoom.gameManager.users[packet.sender] ?: User.EMPTY
+                val user = room.manager.users[packet.sender] ?: User.EMPTY
                 view.chat("${user.name}: ${packet.message}")
             }
-            is Packet.In.Error -> {
+            is Packet.In.Play.Error -> {
                 error("에러", "에러코드: ${packet.code}", owner = view.currentWindow)
                 view.close()
             }
+            is Packet.In.Play.Join -> room.join(packet.user)
+            is Packet.In.Play.User -> room.update(packet.user)
+            is Packet.In.Play.Quit -> room.quit(packet.id)
             is Packet.In.Unknown -> System.err.println("Unknown packet: ${packet.type} ${packet.element}")
             else -> System.err.println("Uncaught packet: ${packet.javaClass.name}")
         }
@@ -56,9 +59,9 @@ class RoomController(
         sendPacket(Packet.Out.Chat(message))
     }
 
-    fun sendPacket(packet: Any) {
+    fun sendPacket(packet: Packet) {
         GlobalScope.launch(Dispatchers.IO) {
-            val encoded = codec.encode(packet)
+            val encoded = environment.play.encode(packet)
             connection?.send(encoded)
         }
     }
@@ -66,7 +69,7 @@ class RoomController(
     fun start() {
         shutdown()
         connection = startWebSocket(socketUrl.buildString()) {
-            val decoded = codec.decode(it)
+            val decoded = environment.play.decode(it)
             withContext(Dispatchers.Main) {
                 onPacket(decoded)
             }

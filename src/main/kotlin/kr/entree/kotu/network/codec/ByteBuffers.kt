@@ -1,6 +1,6 @@
 @file:Suppress("EXPERIMENTAL_API_USAGE")
 
-package kr.entree.kotu.codec
+package kr.entree.kotu.network.codec
 
 import java.nio.ByteBuffer
 

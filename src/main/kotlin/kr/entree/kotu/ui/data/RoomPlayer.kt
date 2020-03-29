@@ -1,27 +1,25 @@
 package kr.entree.kotu.ui.data
 
 import javafx.beans.property.SimpleBooleanProperty
+import kr.entree.kotu.network.packet.Game
 import tornadofx.getValue
 import tornadofx.setValue
 import tornadofx.stringBinding
 
 /**
- * Created by JunHyung Lim on 2020-03-28
+ * Created by JunHyung Lim on 2020-03-29
  */
-fun User.toGamePlayer() = GamePlayer(id, this)
-
-class GamePlayer(
-    id: String,
-    val user: User
-) {
-    val idProperty get() = user.idProperty
-    var id by idProperty
-    val readyProperty = SimpleBooleanProperty(false)
+class RoomPlayer(val user: User) {
+    val readyProperty = SimpleBooleanProperty()
     var ready by readyProperty
     val readyText = readyProperty.stringBinding { if (it == true) "준비" else "대기" }
 
+    fun update(game: Game) {
+        ready = game.ready
+    }
+
     companion object {
-        val EMPTY = GamePlayer("-1", User.EMPTY).apply {
+        val EMPTY = RoomPlayer(User.EMPTY).apply {
             ready = true
         }
     }

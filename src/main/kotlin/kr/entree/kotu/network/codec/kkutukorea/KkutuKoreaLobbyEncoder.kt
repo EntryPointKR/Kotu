@@ -1,16 +1,16 @@
-package kr.entree.kotu.codec.kkutukorea
+package kr.entree.kotu.network.codec.kkutukorea
 
 import io.ktor.http.cio.websocket.Frame
 import kotlinx.serialization.json.json
-import kr.entree.kotu.codec.Encoder
-import kr.entree.kotu.packet.Packet
+import kr.entree.kotu.network.codec.Encoder
+import kr.entree.kotu.network.packet.Packet
 import java.nio.ByteBuffer
 
 /**
  * Created by JunHyung Lim on 2020-03-27
  */
-class KkutuKoreaEncoder : Encoder {
-    override fun encode(packet: Any): Frame = when (packet) {
+class KkutuKoreaLobbyEncoder : Encoder {
+    override fun encode(packet: Packet): Frame = when (packet) {
         is Packet.Out.Chat -> {
             val buffer = ByteBuffer.allocate(packet.message.length * 4 + 16)
             buffer.put(KkutuKorea.PacketType.CHAT.toByte())
@@ -20,7 +20,7 @@ class KkutuKoreaEncoder : Encoder {
             buffer.put(0) // zero
             Frame.Binary(true, ByteBuffer.wrap(buffer.array(), 0, buffer.position()))
         }
-        is Packet.Out.RoomEnter -> {
+        is Packet.Out.Lobby.RoomEnter -> {
             Frame.Text(json {
                 "type" to "enter"
                 "id" to packet.id

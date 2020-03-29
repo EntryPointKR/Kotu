@@ -2,20 +2,16 @@ package kr.entree.kotu.ui.data
 
 import javafx.beans.property.*
 import kr.entree.kotu.manager.GameManager
-import kr.entree.kotu.packet.Packet
+import kr.entree.kotu.network.RoomData
+import kr.entree.kotu.network.UserData
 import tornadofx.asObservable
 import tornadofx.getValue
 import tornadofx.objectBinding
 import tornadofx.setValue
 
-fun roomOf(packet: Packet.In.Room) =
-    Room().apply {
-        update(packet)
-    }
-
 class Room {
     lateinit var manager: GameManager
-    val players = SimpleListProperty(mutableListOf<GamePlayer>().asObservable())
+    val players = SimpleMapProperty(mutableMapOf<String, RoomPlayer>().asObservable())
     val idProperty = SimpleStringProperty()
     var id by idProperty
     val nameProperty = SimpleStringProperty()
@@ -30,12 +26,38 @@ class Room {
     val ingameProperty = SimpleBooleanProperty()
     var ingame by ingameProperty
 
-    fun update(room: Packet.In.Room) {
-        players.setAll(room.players.mapNotNull { manager.users[it]?.toGamePlayer() })
+    operator fun plusAssign(user: User) {
+        players[user.id] = RoomPlayer(user)
+    }
+
+    fun update(room: RoomData) {
+        players.clear()
+        room.players.forEach {
+            this += manager.users[it] ?: return@forEach
+        }
         id = room.id
         name = room.title
         type = room.type
+        maxPlayers = room.limit
         public = !room.password
         ingame = room.ingame
     }
+
+    fun update(user: UserData) {
+        manager.updateUser(user)
+        players[user.id]?.update(user.game)
+    }
+
+    fun join(id: String) {
+        val user = manager.users[id] ?: return
+        this += user
+    }
+
+    fun join(userData: UserData) {
+        val user = manager.users[userData.id] ?: return
+        user.update(userData)
+        this += user
+    }
+
+    fun quit(id: String) = players.remove(id)
 }
