@@ -2,8 +2,7 @@ package kr.entree.kotu.ui.room
 
 import io.ktor.http.URLBuilder
 import io.ktor.http.cio.websocket.Frame
-import javafx.collections.ObservableList
-import javafx.scene.Node
+import javafx.scene.layout.FlowPane
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -16,9 +15,9 @@ import kr.entree.kotu.ui.component.PlayerCard
 import kr.entree.kotu.ui.data.Room
 import kr.entree.kotu.ui.data.RoomPlayer
 import kr.entree.kotu.ui.data.User
-import tornadofx.Controller
-import tornadofx.bind
-import tornadofx.error
+import kr.entree.kotu.ui.model.RoomPlayerModel
+import tornadofx.*
+import kotlin.text.clear
 
 /**
  * Created by JunHyung Lim on 2020-03-27
@@ -31,9 +30,9 @@ class RoomController(
     val view by inject<RoomView>()
     var connection: Connection<Frame>? = null
 
-    fun bindPlayers(children: ObservableList<Node>) {
-        children.bind(room.players) { _, player ->
-            PlayerCard(player ?: RoomPlayer.EMPTY).root
+    fun bindPlayers(playerPane: FlowPane) {
+        playerPane.bindChildren(room.players) { _, player ->
+            find<PlayerCard>(PlayerCard::player to RoomPlayerModel(player ?: RoomPlayer.EMPTY)).root
         }
     }
 

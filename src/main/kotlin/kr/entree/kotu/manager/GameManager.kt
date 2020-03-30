@@ -1,5 +1,6 @@
 package kr.entree.kotu.manager
 
+import javafx.beans.property.SimpleMapProperty
 import kr.entree.kotu.network.RoomData
 import kr.entree.kotu.network.UserData
 import kr.entree.kotu.network.packet.Packet
@@ -8,32 +9,27 @@ import kr.entree.kotu.ui.data.User
 import tornadofx.asObservable
 
 class GameManager {
-    val users = mutableMapOf<String, User>().asObservable()
-    val rooms = mutableMapOf<String, Room>().asObservable()
+    val users = SimpleMapProperty(mutableMapOf<String, User>().asObservable())
+    val rooms = SimpleMapProperty(mutableMapOf<String, Room>().asObservable())
 
-    fun addUser(user: UserData) = User().apply {
+    fun createUser() = User().apply {
         manager = this@GameManager
-        update(user)
-        users[user.id] = this
     }
 
-    fun addRoom(room: RoomData) = Room().apply {
+    fun createRoom() = Room().apply {
         manager = this@GameManager
-        update(room)
-        rooms[id] = this
     }
 
-    fun updateUser(userData: UserData) =
-        users.getOrPut(userData.id) {
-            addUser(userData)
-        }.apply { update(userData) }
+    fun updateUser(userData: UserData) {
+        users.getOrPut(userData.id) { createUser() }.update(userData)
+    }
 
     fun updateRoom(roomData: RoomData) {
         if (roomData.players.isEmpty()) {
             rooms.remove(roomData.id)
             return
         }
-        val room = rooms.getOrPut(roomData.id) { addRoom(roomData) }
+        val room = rooms.getOrPut(roomData.id) { createRoom() }.update(roomData)
         roomData.readies.forEach {
             room.players[it]?.ready = true
         }
@@ -43,10 +39,10 @@ class GameManager {
         users.clear()
         rooms.clear()
         welcomePacket.users.forEach { (_, user) ->
-            addUser(user)
+            users[user.id] = createUser().update(user)
         }
         welcomePacket.rooms.forEach { (_, room) ->
-            addRoom(room)
+            rooms[room.id] = createRoom().update(room)
         }
     }
 }

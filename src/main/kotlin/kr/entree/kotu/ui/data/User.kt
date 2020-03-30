@@ -3,7 +3,6 @@ package kr.entree.kotu.ui.data
 import javafx.beans.property.SimpleStringProperty
 import kr.entree.kotu.manager.GameManager
 import kr.entree.kotu.network.UserData
-import kr.entree.kotu.network.packet.Game
 import tornadofx.getValue
 import tornadofx.setValue
 
@@ -21,8 +20,23 @@ class User {
         }
     }
 
-    fun update(data: UserData) {
+    fun update(data: UserData): User = apply {
         id = data.id
         name = data.name
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as User
+
+        if (idProperty != other.idProperty) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return idProperty.hashCode()
     }
 }

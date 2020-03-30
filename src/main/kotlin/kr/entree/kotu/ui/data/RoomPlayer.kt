@@ -9,10 +9,10 @@ import tornadofx.stringBinding
 /**
  * Created by JunHyung Lim on 2020-03-29
  */
-class RoomPlayer(val user: User) {
+data class RoomPlayer(val user: User) {
+    val nameProperty get() = user.nameProperty
     val readyProperty = SimpleBooleanProperty()
     var ready by readyProperty
-    val readyText = readyProperty.stringBinding { if (it == true) "준비" else "대기" }
 
     fun update(game: Game) {
         ready = game.ready

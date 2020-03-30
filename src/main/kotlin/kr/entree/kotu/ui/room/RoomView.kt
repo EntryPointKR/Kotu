@@ -38,7 +38,7 @@ class RoomView : View() {
     }
 
     override fun onBeforeShow() {
-        controller.bindPlayers(playerPane.children)
+        controller.bindPlayers(playerPane)
         controller.start()
     }
 

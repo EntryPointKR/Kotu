@@ -2,14 +2,14 @@ package kr.entree.kotu.ui.component
 
 import javafx.scene.control.Label
 import javafx.scene.paint.Color
-import kr.entree.kotu.ui.data.RoomPlayer
-import kr.entree.kotu.ui.data.User
+import kr.entree.kotu.ui.model.RoomPlayerModel
 import tornadofx.*
 
 /**
  * Created by JunHyung Lim on 2020-03-26
  */
-class PlayerCard(val player: RoomPlayer) : Fragment() {
+class PlayerCard : Fragment() {
+    val player: RoomPlayerModel by param()
     var readyLabel by singleAssign<Label>()
 
     override val root = hbox {
@@ -19,9 +19,9 @@ class PlayerCard(val player: RoomPlayer) : Fragment() {
                 imageview("/images/eyes/def.png")
                 imageview("/images/mouth/def.png")
             }
-            text(player.user.name)
+            text(player.name)
             readyLabel = label(player.readyText)
-            player.readyProperty.onChange {
+            player.ready.onChange {
                 readyLabel.textFill = if (it) Color.BLUE else Color.BLACK
             }
         }

@@ -11,7 +11,8 @@ import tornadofx.setValue
 
 class Room {
     lateinit var manager: GameManager
-    val players = SimpleMapProperty(mutableMapOf<String, RoomPlayer>().asObservable())
+    val players: SimpleMapProperty<String, RoomPlayer> =
+        SimpleMapProperty(mutableMapOf<String, RoomPlayer>().asObservable())
     val idProperty = SimpleStringProperty()
     var id by idProperty
     val nameProperty = SimpleStringProperty()
@@ -30,7 +31,7 @@ class Room {
         players[user.id] = RoomPlayer(user)
     }
 
-    fun update(room: RoomData) {
+    fun update(room: RoomData) = apply {
         players.clear()
         room.players.forEach {
             this += manager.users[it] ?: return@forEach
