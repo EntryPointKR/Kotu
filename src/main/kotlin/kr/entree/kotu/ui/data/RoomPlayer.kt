@@ -13,6 +13,7 @@ data class RoomPlayer(val user: User) {
     val nameProperty get() = user.nameProperty
     val readyProperty = SimpleBooleanProperty()
     var ready by readyProperty
+    val readyText = readyProperty.stringBinding { if (it == true) "준비" else "대기" }
 
     fun update(game: Game) {
         ready = game.ready

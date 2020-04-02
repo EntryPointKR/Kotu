@@ -23,14 +23,15 @@ suspend inline fun startWebSocket(url: String, queue: Channel<Frame>, crossinlin
     HttpClient {
         install(WebSockets)
     }.wss(url) {
-        joinAll(launch {
-            while (isActive) {
-                val out = queue.receive()
-                send(out)
-            }
-        }.apply {
-            invokeOnCompletion { it?.printStackTrace() }
-        },
+        joinAll(
+            launch {
+                while (isActive) {
+                    val out = queue.receive()
+                    send(out)
+                }
+            }.apply {
+                invokeOnCompletion { it?.printStackTrace() }
+            },
             launch {
                 while (isActive) {
                     val frame = incoming.receive()
@@ -38,7 +39,8 @@ suspend inline fun startWebSocket(url: String, queue: Channel<Frame>, crossinlin
                         receiver(frame)
                     }
                 }
-            }.apply { invokeOnCompletion { it?.printStackTrace() } })
+            }.apply { invokeOnCompletion { it?.printStackTrace() } }
+        )
     }
 }
 

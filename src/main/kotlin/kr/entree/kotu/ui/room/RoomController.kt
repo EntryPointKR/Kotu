@@ -13,11 +13,10 @@ import kr.entree.kotu.network.packet.Packet
 import kr.entree.kotu.startWebSocket
 import kr.entree.kotu.ui.component.PlayerCard
 import kr.entree.kotu.ui.data.Room
-import kr.entree.kotu.ui.data.RoomPlayer
 import kr.entree.kotu.ui.data.User
-import kr.entree.kotu.ui.model.RoomPlayerModel
-import tornadofx.*
-import kotlin.text.clear
+import tornadofx.Controller
+import tornadofx.bindChildren
+import tornadofx.error
 
 /**
  * Created by JunHyung Lim on 2020-03-27
@@ -32,7 +31,7 @@ class RoomController(
 
     fun bindPlayers(playerPane: FlowPane) {
         playerPane.bindChildren(room.players) { _, player ->
-            find<PlayerCard>(PlayerCard::player to RoomPlayerModel(player ?: RoomPlayer.EMPTY)).root
+            find<PlayerCard>(PlayerCard::player to player).root // TODO: 1 per player object
         }
     }
 

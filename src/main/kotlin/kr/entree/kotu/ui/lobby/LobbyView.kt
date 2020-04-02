@@ -9,6 +9,7 @@ import javafx.stage.Screen
 import kr.entree.kotu.network.codec.kkutukorea.Environment
 import kr.entree.kotu.network.codec.kkutukorea.KkutuKorea
 import kr.entree.kotu.ui.data.Room
+import kr.entree.kotu.ui.data.User
 import tornadofx.*
 
 class LobbyView(
@@ -18,14 +19,17 @@ class LobbyView(
         scope,
         "environment" to environment
     )
-    var userView: ListView<String> by singleAssign()
+    var userView: ListView<User> by singleAssign()
     var roomView: TableView<Room> by singleAssign()
     var chatArea: TextArea by singleAssign()
     var chatField: TextField by singleAssign()
 
     override val root = borderpane {
-        left = listview<String> {
-            items.bind(controller.users) { _, user -> user.name }
+        left = listview<User> {
+            items.bind(controller.users) { _, user -> user }
+            cellFormat {
+                text = it.name
+            }
             userView = this
         }
         center = tableview<Room> {
